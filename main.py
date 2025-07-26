@@ -30,7 +30,7 @@ if __name__ == "__main__":
                 input_element = driver.find_element(
                     By.CSS_SELECTOR, "input[value='Type Distribution Name']"
                 )
-                input_element.send_keys("NixOS"+ Keys.ENTER)
+                input_element.send_keys("NixOS"+Keys.ENTER)
             except Exception as e:
                 print(f"An error occurred during script execution: {e}")
     except Exception as e:
