@@ -1,5 +1,8 @@
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
@@ -30,7 +33,8 @@ if __name__ == "__main__":
                 input_element = driver.find_element(
                     By.CSS_SELECTOR, "input[value='Type Distribution Name']"
                 )
-                input_element.send_keys("NixOS"+Keys.ENTER)
+                input_element.send_keys("NixOS" + Keys.ENTER)
+                time.sleep(10)
             except Exception as e:
                 print(f"An error occurred during script execution: {e}")
     except Exception as e:
