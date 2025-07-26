@@ -1,0 +1,46 @@
+# .github/workflows/lint.yml
+
+name: Python Linting
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12' 
+
+    - name: Install dependencies and linters
+      run: |
+        python -m pip install --upgrade pip
+        # Install common linters. You can add or remove based on your project's needs.
+        pip install flake8 black isort
+
+    - name: Run Flake8
+      run: |
+        flake8 . --count --show-source --statistics --max-line-length=120 --exclude=venv,.git,__pycache__,docs,build,dist
+
+    - name: Run Black (code formatter check)
+      run: |
+        black . --check --diff --exclude="(\.git|\.venv|env|venv|build|dist|__pycache__)"
+
+    - name: Run isort (import sorting check)
+      run: |
+        isort . --check-only --diff --skip-glob="(\.git|\.venv|env|venv|build|dist|__pycache__)"
