@@ -67,7 +67,7 @@ def parse(keywords):
 if __name__ == "__main__":
     driver = None
     found_links = []
-    keywords = []
+    keywords = ["release"]
     try:
         driver = create_firefox_driver()
         if driver:
