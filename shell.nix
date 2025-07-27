@@ -14,7 +14,7 @@ pkgs.mkShellNoCC {
   ];
   shellHook = ''
   source ./.venv/bin/activate
-  pip install -r requirments.txt
+  pip install -r requirements.txt
   '';
 
 }
