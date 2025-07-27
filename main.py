@@ -1,15 +1,14 @@
-import time
-import requests
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from undetected_geckodriver import Firefox
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException # Good to explicitly catch this
+from webdriver_manager.firefox import GeckoDriverManager
+
+
 def create_firefox_driver():
     try:
         options = Options()
@@ -24,7 +23,7 @@ def create_firefox_driver():
         return None
 
 
-def search(distro): #TODO: Get this to work and not throw a 403 error
+def search(distro):
     try:
         if distro is not None:
             print("Getting link for " + distro)
@@ -44,9 +43,9 @@ def search(distro): #TODO: Get this to work and not throw a 403 error
         print(f"An error occurred during script execution3: {e}")
 
 
-def parse(): #TODO: Get this to work and not throw a 403 error
+def parse():
     keywords = ["release", "iso"]
-    found_links = [] 
+    found_links = []
 
     try:
         print("Parsing: Waiting for links to be present...")
@@ -66,17 +65,18 @@ def parse(): #TODO: Get this to work and not throw a 403 error
                 for keyword in keywords:
                     if keyword.lower() in link_string.lower():
                         found_links.append(link_string)
-                        break # Move to the next link once a keyword is found
+                        break
 
     except TimeoutException:
         print(f"Parsing Timeout: No anchor elements found on page for {distro}.")
     except Exception as e:
         if distro:
-             print(f"An error occurred during parsing for {distro}: {e}")
+            print(f"An error occurred during parsing for {distro}: {e}")
         else:
             print(f"An error occurred during parsing: {e}")
-        raise 
+        raise
     return found_links
+
 
 if __name__ == "__main__":
     driver = None
@@ -89,9 +89,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An error occurred during script execution: {e}")
     finally:
-        # Always close the browser when done
         if driver:
             print("Closing Firefox browser.")
-            #driver.quit()
+            driver.quit()
         else:
             print("Driver was not initialized, nothing to close.")
