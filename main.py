@@ -1,14 +1,12 @@
-from selenium import webdriver
 import requests
-from selenium.common.exceptions import TimeoutException
+from bs4 import BeautifulSoup
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.firefox import GeckoDriverManager
-from bs4 import BeautifulSoup
+
 
 def create_firefox_driver():
     try:
@@ -44,19 +42,19 @@ def search(distro):
         print(f"An error occurred during script execution3: {e}")
 
 
-def find_links(): #TODO: make it stop scrapping only the front page by using current_link however i do not know how to implement
+def find_links():  # TODO: make it stop scrapping only the front page by using current_link
     html_content = None
-    keywords = ["iso","ISO"]
+    keywords = ["iso", "ISO"]
     found_links = []
-    current_link = driver.current_url 
+    # current_link = driver.current_url
 
     try:
-        html_content =  driver.page_source
+        html_content = driver.page_source
         print("Successfully fetched HTML content.")
-        soup = BeautifulSoup(html_content, 'html.parser')
-        all_links = soup.find_all('a')
+        soup = BeautifulSoup(html_content, "html.parser")
+        all_links = soup.find_all("a")
         for link in all_links:
-            href = link.get('href')
+            href = link.get("href")
             for keyword in keywords:
                 if keyword in href:
                     found_links.append(link)
@@ -65,8 +63,9 @@ def find_links(): #TODO: make it stop scrapping only the front page by using cur
     return found_links
 
 
-def parse(results): #TODO: Make it filter FTP from torrent servers etc
+def parse(results):  # TODO: Make it filter FTP from torrent servers etc
     print(results)
+
 
 if __name__ == "__main__":
     driver = None
