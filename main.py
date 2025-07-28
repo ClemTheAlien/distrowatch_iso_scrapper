@@ -4,7 +4,9 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
-
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def create_firefox_driver():
     try:
@@ -22,7 +24,6 @@ def create_firefox_driver():
 
 def find_links():
     html_content = None
-    found_links = []
     # current_link = driver.current_url
 
     try:
@@ -34,6 +35,8 @@ def find_links():
             href = link.get("href")
             if href not in found_links:
                 found_links.append(href)
+            else:
+                continue
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
     return found_links
@@ -51,18 +54,40 @@ def cherry_picker():
 
 if __name__ == "__main__":
     driver = None
-    distro = "NixOS"
-    try:
-        driver = create_firefox_driver()
-        if driver:
-            driver.get("https://distrowatch.com/" + distro)
-            results = find_links()
-            parse(results)
-    except Exception as e:
-        print(f"An error occurred during script execution: {e}")
-    finally:
-        if driver:
-            print("Closing Firefox browser.")
-            driver.quit()
-        else:
-            print("Driver was not initialized, nothing to close.")
+    found_links = []
+    print("Hi Welcome to Distrowatch ISO scrapper! Do you want to scrap distro names or links (dn, dl)")
+    userInput = input()
+    if userInput == "dl":
+        print("Which Distro?")
+        distro = input()
+        try:
+            driver = create_firefox_driver()
+            if driver:
+                driver.get("https://distrowatch.com/" + distro)
+                results = find_links()
+                parse(results)
+        except Exception as e:
+            print(f"An error occurred during script execution: {e}")
+        finally:
+            if driver:
+                print("Closing Firefox browser.")
+                driver.quit()
+            else:
+                print("Driver was not initialized, nothing to close.")
+    elif userInput == "dn":
+        print("Please input how many times you want it to find a random distro link")
+        userInput = input()
+        i=0
+        while i < int(userInput):
+            driver = create_firefox_driver()
+            if driver:
+                driver.get("https://distrowatch.com/")
+                random_distribution_input = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, "//input[@value='Random Distribution']"))
+                )
+                random_distribution_input.click()
+                driver.get(driver.current_url)
+                results = find_links()
+                driver.quit()
+                i+=1
+        parse(results)
