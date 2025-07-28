@@ -1,4 +1,6 @@
 attrs==25.3.0
+beautifulsoup4==4.13.4
+bs4==0.0.2
 certifi==2025.7.14
 charset-normalizer==3.4.2
 h11==0.16.0

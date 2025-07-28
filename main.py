@@ -1,4 +1,5 @@
 from selenium import webdriver
+import requests
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -7,7 +8,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.firefox import GeckoDriverManager
-
+from bs4 import BeautifulSoup
 
 def create_firefox_driver():
     try:
@@ -33,8 +34,8 @@ def search(distro):
                 )
                 input_element.send_keys(distro, Keys.ENTER)
                 try:
-                    results = parse()
-                    print(results)
+                    results = find_links()
+                    parse(results)
                 except Exception as e:
                     print(f"An error occurred during script execution1: {e}")
             except Exception as e:
@@ -43,49 +44,38 @@ def search(distro):
         print(f"An error occurred during script execution3: {e}")
 
 
-def parse():
-    keywords = ["release", "iso"]
+def find_links(): #TODO: make it stop scrapping only the front page by using current_link however i do not know how to implement
+    html_content = None
+    keywords = ["iso","ISO"]
     found_links = []
+    current_link = driver.current_url 
 
     try:
-        print("Parsing: Waiting for links to be present...")
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_all_elements_located((By.TAG_NAME, "a"))
-        )
-        print("Links found on the page.")
-
-        anchor_elements = driver.find_elements(By.TAG_NAME, "a")
-
-        for link_element in anchor_elements:
-            link_url = link_element.get_attribute("href")
-
-            if link_url:
-                link_string = str(link_url)
-
-                for keyword in keywords:
-                    if keyword.lower() in link_string.lower():
-                        found_links.append(link_string)
-                        break
-
-    except TimeoutException:
-        print(f"Parsing Timeout: No anchor elements found on page for {distro}.")
-    except Exception as e:
-        if distro:
-            print(f"An error occurred during parsing for {distro}: {e}")
-        else:
-            print(f"An error occurred during parsing: {e}")
-        raise
+        html_content =  driver.page_source
+        print("Successfully fetched HTML content.")
+        soup = BeautifulSoup(html_content, 'html.parser')
+        all_links = soup.find_all('a')
+        for link in all_links:
+            href = link.get('href')
+            for keyword in keywords:
+                if keyword in href:
+                    found_links.append(link)
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching the URL: {e}")
     return found_links
 
 
+def parse(results): #TODO: Make it filter FTP from torrent servers etc
+    print(results)
+
 if __name__ == "__main__":
     driver = None
-    distro = None
+    distro = "NixOS"
     try:
         driver = create_firefox_driver()
         if driver:
             driver.get("https://distrowatch.com")
-            search("NixOS")
+            search(distro)
     except Exception as e:
         print(f"An error occurred during script execution: {e}")
     finally:
