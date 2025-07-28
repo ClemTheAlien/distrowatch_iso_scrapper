@@ -20,7 +20,7 @@ def create_firefox_driver():
         return None
 
 
-def find_links():  # TODO: make it stop scrapping only the front page by using current_link
+def find_links():
     html_content = None
     found_links = []
     # current_link = driver.current_url
@@ -41,6 +41,12 @@ def find_links():  # TODO: make it stop scrapping only the front page by using c
 
 def parse(results):  # TODO: Make it filter FTP from torrent servers etc
     print(results)
+
+
+def cherry_picker():
+    """TODO: add a function that goes into the links and tries to find a download button and copy the link"""
+    """for certain links that dont already open a download prompt"""
+    pass
 
 
 if __name__ == "__main__":
