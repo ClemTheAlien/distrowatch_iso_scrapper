@@ -32,7 +32,8 @@ def find_links():  # TODO: make it stop scrapping only the front page by using c
         all_links = soup.find_all("a", string="ISO")
         for link in all_links:
             href = link.get("href")
-            found_links.append(href)
+            if href not in found_links:
+                found_links.append(href)
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
     return found_links
@@ -44,7 +45,7 @@ def parse(results):  # TODO: Make it filter FTP from torrent servers etc
 
 if __name__ == "__main__":
     driver = None
-    distro = "Debian"
+    distro = "NixOS"
     try:
         driver = create_firefox_driver()
         if driver:
