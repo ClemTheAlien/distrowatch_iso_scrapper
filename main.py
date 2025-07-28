@@ -1,12 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.firefox import GeckoDriverManager
+
 
 def create_firefox_driver():
     try:
@@ -55,7 +56,9 @@ def cherry_picker():
 if __name__ == "__main__":
     driver = None
     found_links = []
-    print("Hi Welcome to Distrowatch ISO scrapper! Do you want to scrap distro names or links (dn, dl)")
+    print(
+        "Hi Welcome to Distrowatch ISO scrapper! Do you want to scrap distro names or links (dn, dl)"
+    )
     userInput = input()
     if userInput == "dl":
         print("Which Distro?")
@@ -77,17 +80,19 @@ if __name__ == "__main__":
     elif userInput == "dn":
         print("Please input how many times you want it to find a random distro link")
         userInput = input()
-        i=0
+        i = 0
         while i < int(userInput):
             driver = create_firefox_driver()
             if driver:
                 driver.get("https://distrowatch.com/")
                 random_distribution_input = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable((By.XPATH, "//input[@value='Random Distribution']"))
+                    EC.element_to_be_clickable(
+                        (By.XPATH, "//input[@value='Random Distribution']")
+                    )
                 )
                 random_distribution_input.click()
                 driver.get(driver.current_url)
                 results = find_links()
                 driver.quit()
-                i+=1
+                i = i + 1
         parse(results)
