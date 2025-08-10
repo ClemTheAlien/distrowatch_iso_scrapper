@@ -11,6 +11,7 @@ pkgs.mkShellNoCC {
 
   packages = with pkgs; [
     python3
+    firefox
   ];
   shellHook = ''
   source ./.venv/bin/activate

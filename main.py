@@ -1,4 +1,6 @@
 import requests
+import os
+from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -11,6 +13,8 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 def create_firefox_driver():
     try:
+        load_dotenv()
+        github_token = os.getenv("GH_TOKEN")
         options = Options()
         options.add_argument("--headless")
         service = FirefoxService(GeckoDriverManager().install())
