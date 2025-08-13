@@ -1,7 +1,6 @@
 import requests
-import os
-from dotenv import load_dotenv
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -13,8 +12,6 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 def create_firefox_driver():
     try:
-        #load_dotenv()
-        #github_token = os.getenv("GH_TOKEN")
         options = Options()
         options.add_argument("--headless")
         service = FirefoxService(GeckoDriverManager().install())
@@ -48,8 +45,23 @@ def find_links():
 
 
 def parse(results):  # TODO: Make it filter FTP from torrent servers etc
-    print(results)
-
+    ftp = []
+    http = []
+    sourceforge = []
+    torrent = []
+    for e in found_links:
+        parsed_url = urlparse(e)
+        hostname = parsed_url.hostname
+        if parsed_url.scheme == 'ftp':
+            ftp.append(e)
+        elif hostname and hostname.endswith("sourceforge.net"):
+            sourceforge.append(e)
+        else:
+            http.append(e)
+    print("FTP":ftp)
+    print("(HTTP(S):"+http)
+    print("SOURCEFORGE"+sourceforge)
+    print("TORRENT"+torrent) #TODO: add torrent functionality
 
 def cherry_picker():
     """TODO: add a function that goes into the links and tries to find a download button and copy the link"""
