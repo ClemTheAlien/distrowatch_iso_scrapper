@@ -13,12 +13,12 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 def create_firefox_driver():
     try:
-        load_dotenv()
-        github_token = os.getenv("GH_TOKEN")
+        #load_dotenv()
+        #github_token = os.getenv("GH_TOKEN")
         options = Options()
         options.add_argument("--headless")
         service = FirefoxService(GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=service)
+        driver = webdriver.Firefox(service=service, options = options)
 
         print("Firefox WebDriver initialized successfully!")
         return driver
