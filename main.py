@@ -15,7 +15,7 @@ def create_firefox_driver():
         options = Options()
         options.add_argument("--headless")
         service = FirefoxService(GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=service, options = options)
+        driver = webdriver.Firefox(service=service, options=options)
 
         print("Firefox WebDriver initialized successfully!")
         return driver
@@ -26,8 +26,6 @@ def create_firefox_driver():
 
 def find_links():
     html_content = None
-    # current_link = driver.current_url
-
     try:
         html_content = driver.page_source
         print("Successfully fetched HTML content.")
@@ -48,21 +46,21 @@ def parse(results):  # TODO: Make it filter FTP from torrent servers etc
     ftp = []
     http = []
     sourceforge = []
-    torrent = []
     for e in found_links:
         parsed_url = urlparse(e)
         hostname = parsed_url.hostname
         if parsed_url.scheme == 'ftp':
             ftp.append(e)
+            print("FTP:" + e)
         elif hostname and hostname.endswith("sourceforge.net"):
             sourceforge.append(e)
+            print("SOURCEFORGE" + e)
         else:
             http.append(e)
-    print("FTP":ftp)
-    print("(HTTP(S):"+http)
-    print("SOURCEFORGE"+sourceforge)
-    print("TORRENT"+torrent) #TODO: add torrent functionality
-
+            print("(HTTP(S):" + e)
+    print(ftp)
+    print(http)
+    print(sourceforge)
 def cherry_picker():
     """TODO: add a function that goes into the links and tries to find a download button and copy the link"""
     """for certain links that dont already open a download prompt"""
