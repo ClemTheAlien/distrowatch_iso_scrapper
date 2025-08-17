@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup, NavigableString
@@ -50,11 +50,11 @@ def distro_meta_finder():
     print("Successfully fetched HTML content.")
     soup = BeautifulSoup(html_content, "html.parser")
     pattern = re.compile(r"news/distro/(.*?)\.xml")
-    find = soup.find_all('a', href=pattern)
+    find = soup.find_all("a", href=pattern)
     if find:
-        distro_rss = find[0].get('href')
-        if distro_rss == None:
-            distro_rss = "Unknown" #TODO: Find better way of getting distro name as there isnt always an RSS feed
+        distro_rss = find[0].get("href")
+        if distro_rss is None:
+            distro_rss = "Unknown"  # TODO: Find better way of getting distro name as there isnt always an RSS feed
         else:
             match = re.search(pattern, distro_rss)
             if match:
@@ -63,7 +63,7 @@ def distro_meta_finder():
                 distro = "Unknown"
     else:
         distro = "Unknown"
-    element= soup.find(attrs={"class": "TablesTitle"})
+    element = soup.find(attrs={"class": "TablesTitle"})
     if element:
         for content in element.contents:
             if isinstance(content, NavigableString) and content.strip():
@@ -77,6 +77,8 @@ def distro_meta_finder():
 
 def metadata_packerman(distro):
     pass
+
+
 def parse(distro):  # TODO: Make it filter FTP from torrent servers etc
     ftp = []
     distro_website = []
@@ -99,6 +101,7 @@ def parse(distro):  # TODO: Make it filter FTP from torrent servers etc
     print(sourceforge)
     print("Did not find links for:")
     print(not_found_links)
+
 
 if __name__ == "__main__":
     driver = None
@@ -141,7 +144,7 @@ if __name__ == "__main__":
                 random_distribution_input.click()
                 driver.get(driver.current_url)
                 found_links = find_links()
-                distro_results = distro_meta_finder();
+                distro_results = distro_meta_finder()
                 print(distro_results)
                 driver.quit()
                 i = i + 1
