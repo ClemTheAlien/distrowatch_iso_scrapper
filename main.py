@@ -1,7 +1,8 @@
-from urllib.parse import urlparse
+import re
+from urllib.parse import urlparse, urljoin
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -39,16 +40,46 @@ def find_links():
                 found_links.append(href)
             elif all_links == 0:
                 not_found_links.append(current_url)
-
-                continue
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
     return found_links
 
 
-def parse(results):  # TODO: Make it filter FTP from torrent servers etc
+def distro_meta_finder():
+    html_content = driver.page_source
+    print("Successfully fetched HTML content.")
+    soup = BeautifulSoup(html_content, "html.parser")
+    pattern = re.compile(r"news/distro/(.*?)\.xml")
+    find = soup.find_all('a', href=pattern)
+    if find:
+        distro_rss = find[0].get('href')
+        if distro_rss == None:
+            distro_rss = "Unknown" #TODO: Find better way of getting distro name as there isnt always an RSS feed
+        else:
+            match = re.search(pattern, distro_rss)
+            if match:
+                distro = match.group(1)
+            else:
+                distro = "Unknown"
+    else:
+        distro = "Unknown"
+    element= soup.find(attrs={"class": "TablesTitle"})
+    if element:
+        for content in element.contents:
+            if isinstance(content, NavigableString) and content.strip():
+                description = content.strip()
+                print("Found the first piece of unwrapped text:")
+                break
+    else:
+        description = ""
+    return distro, distro_rss, description
+
+
+def metadata_packerman(distro):
+    pass
+def parse(distro):  # TODO: Make it filter FTP from torrent servers etc
     ftp = []
-    http = []
+    distro_website = []
     sourceforge = []
     for e in found_links:
         parsed_url = urlparse(e)
@@ -59,22 +90,15 @@ def parse(results):  # TODO: Make it filter FTP from torrent servers etc
         elif hostname and hostname.endswith("sourceforge.net"):
             sourceforge.append(e)
             print("SOURCEFORGE: " + e)
-        else:
-            http.append(e)
-            print("(HTTP(S): " + e)
+        elif hostname and hostname.endswith(distro):
+            distro_website.append(e)
+            print("(distro_website(S): " + e)
     print("Found links for:")
     print(ftp)
-    print(http)
+    print(distro_website)
     print(sourceforge)
     print("Did not find links for:")
     print(not_found_links)
-
-
-def cherry_picker():
-    """TODO: add a function that goes into the links and tries to find a download button and copy the link"""
-    """for certain links that dont already open a download prompt"""
-    pass
-
 
 if __name__ == "__main__":
     driver = None
@@ -92,7 +116,7 @@ if __name__ == "__main__":
             if driver:
                 driver.get("https://distrowatch.com/" + distro)
                 results = find_links()
-                parse(results)
+                parse(results, distro)
         except Exception as e:
             print(f"An error occurred during script execution: {e}")
         finally:
@@ -116,7 +140,9 @@ if __name__ == "__main__":
                 )
                 random_distribution_input.click()
                 driver.get(driver.current_url)
-                results = find_links()
+                found_links = find_links()
+                distro_results = distro_meta_finder();
+                print(distro_results)
                 driver.quit()
                 i = i + 1
-        parse(results)
+            parse(distro_results)
