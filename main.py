@@ -1,6 +1,7 @@
+from urllib.parse import urlparse
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -29,13 +30,16 @@ def find_links():
     try:
         html_content = driver.page_source
         print("Successfully fetched HTML content.")
+        current_url = driver.current_url
         soup = BeautifulSoup(html_content, "html.parser")
         all_links = soup.find_all("a", string="ISO")
         for link in all_links:
             href = link.get("href")
             if href not in found_links:
                 found_links.append(href)
-            else:
+            elif all_links == 0:
+                not_found_links.append(current_url)
+
                 continue
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
@@ -49,18 +53,23 @@ def parse(results):  # TODO: Make it filter FTP from torrent servers etc
     for e in found_links:
         parsed_url = urlparse(e)
         hostname = parsed_url.hostname
-        if parsed_url.scheme == 'ftp':
+        if parsed_url.scheme == "ftp":
             ftp.append(e)
-            print("FTP:" + e)
+            print("FTP: " + e)
         elif hostname and hostname.endswith("sourceforge.net"):
             sourceforge.append(e)
-            print("SOURCEFORGE" + e)
+            print("SOURCEFORGE: " + e)
         else:
             http.append(e)
-            print("(HTTP(S):" + e)
+            print("(HTTP(S): " + e)
+    print("Found links for:")
     print(ftp)
     print(http)
     print(sourceforge)
+    print("Did not find links for:")
+    print(not_found_links)
+
+
 def cherry_picker():
     """TODO: add a function that goes into the links and tries to find a download button and copy the link"""
     """for certain links that dont already open a download prompt"""
@@ -70,6 +79,7 @@ def cherry_picker():
 if __name__ == "__main__":
     driver = None
     found_links = []
+    not_found_links = []
     print(
         "Hi Welcome to Distrowatch ISO scrapper! Do you want to scrap distro names or links (dn, dl)"
     )
