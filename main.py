@@ -143,8 +143,8 @@ if __name__ == "__main__":
                 )
                 random_distribution_input.click()
                 driver.get(driver.current_url)
-                found_links = find_links()
                 distro_results = distro_meta_finder()
+                found_links = find_links()
                 print(distro_results)
                 driver.quit()
                 i = i + 1
