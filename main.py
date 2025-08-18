@@ -92,12 +92,14 @@ def distro_meta_finder(driver):
     return distro, distro_rss, description
 
 
-def metadata_packerman(distro):
-    pass
+def metadata_packerman():
+    file_path = "links_output.txt"
+    with open(file_path, 'w') as file:
+        for e in content:
+            file.write(e + '\n')   
 
 
 if __name__ == "__main__":
-    file_path = "output.txt"
     content = []
     i = 0
     driver = None
@@ -137,6 +139,4 @@ if __name__ == "__main__":
     
     elif userInput == "dl":
         pass
-    with open(file_path, 'w') as file:
-        for e in content:
-            file.write(e + '\n')
+    metadata_packerman()
