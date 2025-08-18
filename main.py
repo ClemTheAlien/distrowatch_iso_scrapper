@@ -25,35 +25,53 @@ def create_firefox_driver():
         print(f"Error initializing Firefox WebDriver: {e}")
         return None
 
+def navigate_dn():
+    driver = create_firefox_driver()
+    if driver:
+        driver.get("https://distrowatch.com/")
+        random_distribution_input = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                        (By.XPATH, "//input[@value='Random Distribution']")
+                    )
+                )
+        random_distribution_input.click()
+        current_url=driver.current_url
+        driver.get(current_url)
+        distro_info = distro_meta_finder(driver)
+        links = find_links(driver)
 
-def find_links():
+def find_links(driver):
+    global found_links
+    global distro
     html_content = None
     try:
         html_content = driver.page_source
-        print("Successfully fetched HTML content.")
-        current_url = driver.current_url
+        print("Successfully fetched HTML content for Links Finder")
         soup = BeautifulSoup(html_content, "html.parser")
         all_links = soup.find_all("a", string="ISO")
         for link in all_links:
             href = link.get("href")
             if href not in found_links:
                 found_links.append(href)
-            elif all_links == 0:
-                not_found_links.append(current_url)
+            elif not all_links:
+                ncontinue
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
     return found_links
 
 
-def distro_meta_finder():
+def distro_meta_finder(driver):
+    global distro_rss
+    global distro
+    global description
     html_content = driver.page_source
-    print("Successfully fetched HTML content.")
+    print("Successfully fetched HTML content for Metadata Finder")
     soup = BeautifulSoup(html_content, "html.parser")
     pattern = re.compile(r"news/distro/(.*?)\.xml")
     find = soup.find_all("a", href=pattern)
     if find:
         distro_rss = find[0].get("href")
-        if distro_rss is None:
+        if distro_rss == "":
             distro_rss = "Unknown"  # TODO: Find better way of getting distro name as there isnt always an RSS feed
         else:
             match = re.search(pattern, distro_rss)
@@ -68,7 +86,6 @@ def distro_meta_finder():
         for content in element.contents:
             if isinstance(content, NavigableString) and content.strip():
                 description = content.strip()
-                print("Found the first piece of unwrapped text:")
                 break
     else:
         description = ""
@@ -79,73 +96,47 @@ def metadata_packerman(distro):
     pass
 
 
-def parse(distro):  # TODO: Make it filter FTP from torrent servers etc
-    ftp = []
-    distro_website = []
-    sourceforge = []
-    for e in found_links:
-        parsed_url = urlparse(e)
-        hostname = parsed_url.hostname
-        if parsed_url.scheme == "ftp":
-            ftp.append(e)
-            print("FTP: " + e)
-        elif hostname and hostname.endswith("sourceforge.net"):
-            sourceforge.append(e)
-            print("SOURCEFORGE: " + e)
-        elif hostname and hostname.endswith(distro):
-            distro_website.append(e)
-            print("(distro_website(S): " + e)
-    print("Found links for:")
-    print(ftp)
-    print(distro_website)
-    print(sourceforge)
-    print("Did not find links for:")
-    print(not_found_links)
-
-
 if __name__ == "__main__":
+    file_path = "output.txt"
+    content = []
+    i = 0
     driver = None
+    distro = None
+    distro_rss = None
+    description= None 
     found_links = []
     not_found_links = []
     print(
         "Hi Welcome to Distrowatch ISO scrapper! Do you want to scrap distro names or links (dn, dl)"
     )
     userInput = input()
-    if userInput == "dl":
-        print("Which Distro?")
-        distro = input()
-        try:
-            driver = create_firefox_driver()
-            if driver:
-                driver.get("https://distrowatch.com/" + distro)
-                results = find_links()
-                parse(results, distro)
-        except Exception as e:
-            print(f"An error occurred during script execution: {e}")
-        finally:
-            if driver:
-                print("Closing Firefox browser.")
-                driver.quit()
-            else:
-                print("Driver was not initialized, nothing to close.")
-    elif userInput == "dn":
+    if userInput == "dn":
         print("Please input how many times you want it to find a random distro link")
         userInput = input()
-        i = 0
         while i < int(userInput):
-            driver = create_firefox_driver()
-            if driver:
-                driver.get("https://distrowatch.com/")
-                random_distribution_input = WebDriverWait(driver, 10).until(
-                    EC.element_to_be_clickable(
-                        (By.XPATH, "//input[@value='Random Distribution']")
-                    )
-                )
-                random_distribution_input.click()
-                driver.get(driver.current_url)
-                distro_results = distro_meta_finder()
-                found_links = find_links()
-                print(distro_results)
-                driver.quit()
-                i = i + 1
-            parse(distro_results)
+            driver = None
+            distro = ""
+            distro_rss = ""
+            description= "" 
+            found_links = []
+            not_found_links = ""
+            navigate_dn()
+            print("Distro: "+distro)
+            print("Distro RSS: "+distro_rss)
+            print("Distro Desc: "+description)
+            if not found_links: 
+                print ("Could not find links for")
+                not_found_links = distro
+                print(not_found_links)
+            else:
+                print ("Found links")
+                print(found_links)
+            for e in found_links:
+                content.append(e)
+            i+=1
+    
+    elif userInput == "dl":
+        pass
+    with open(file_path, 'w') as file:
+        for e in content:
+            file.write(e + '\n')
