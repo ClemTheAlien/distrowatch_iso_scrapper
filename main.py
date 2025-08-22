@@ -26,7 +26,7 @@ def create_firefox_driver():
         return None
 
 def navigate_dn():
-    driver = create_firefox_driver()
+    global driver
     if driver:
         driver.get("https://distrowatch.com/")
         random_distribution_input = WebDriverWait(driver, 10).until(
@@ -111,12 +111,12 @@ if __name__ == "__main__":
     print(
         "Hi Welcome to Distrowatch ISO scrapper! Do you want to scrap distro names or links (dn, dl)"
     )
+    driver = create_firefox_driver()
     userInput = input()
     if userInput == "dn":
         print("Please input how many times you want it to find a random distro link")
         userInput = input()
         while i < int(userInput):
-            driver = None
             distro = ""
             distro_rss = ""
             description= "" 
@@ -126,6 +126,7 @@ if __name__ == "__main__":
             print("Distro: "+distro)
             print("Distro RSS: "+distro_rss)
             print("Distro Desc: "+description)
+            print(i)
             if not found_links: 
                 print ("Could not find links for")
                 not_found_links = distro
