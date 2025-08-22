@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup, NavigableString
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,9 +18,8 @@ def create_firefox_driver():
         options = Options()
         options.add_argument("--headless")
         service = FirefoxService(GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=service, options=options)
+        driver = webdriver.Firefox(service=service)
 
-        print("Firefox WebDriver initialized successfully!")
         return driver
     except Exception as e:
         print(f"Error initializing Firefox WebDriver: {e}")
@@ -39,6 +39,18 @@ def navigate_dn():
         driver.get(current_url)
         distro_info = distro_meta_finder(driver)
         links = find_links(driver)
+
+
+def navigate_dl(distroname):
+    global driver
+    if driver:
+        driver.get("https://distrowatch.com/")
+        input_field= driver.find_element(By.NAME, "distribution")
+        input_field.send_keys(distroname+ Keys.ENTER)
+        wait = WebDriverWait(driver, 10)
+        info_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "Info")))
+        distro_info = distro_meta_finder(driver)
+        links = find_links(driver)        
 
 def find_links(driver):
     global found_links
@@ -139,5 +151,27 @@ if __name__ == "__main__":
             i+=1
     
     elif userInput == "dl":
+        print(
+        "What is the Name of the distro?"
+        )
+        distroname = input()
+        distro = ""
+        distro_rss = ""
+        description= "" 
+        found_links = []
+        not_found_links = ""
+        navigate_dl(distroname)
+        print("Distro: "+distro)
+        print("Distro RSS: "+distro_rss)
+        print("Distro Desc: "+description)
+        if not found_links: 
+            print ("Could not find links for")
+            not_found_links = distro
+            print(not_found_links)
+        else:
+            print ("Found links")
+            print(found_links)
+        for e in found_links:
+            content.append(e)
         pass
     metadata_packerman()
