@@ -6,7 +6,6 @@ import requests
 from bs4 import BeautifulSoup, NavigableString
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions as EC
@@ -22,7 +21,13 @@ def create_firefox_driver():
         options = Options()
         options.add_argument("--headless")
         service = FirefoxService(GeckoDriverManager().install())
+<<<<<<< HEAD
         driver = webdriver.Firefox(service=service)
+=======
+        driver = webdriver.Firefox(service=service, options=options)
+
+        print("Firefox WebDriver initialized successfully!")
+>>>>>>> parent of 5108ef1 (feat(main.py):added back dl func)
         return driver
     except Exception as e:
         print(f"Error initializing Firefox WebDriver: {e}")
@@ -46,6 +51,7 @@ def navigate_dn_thread(thread_id, shared_content, shared_not_found_links):
         random_distribution_input.click()
         current_url = driver.current_url
         driver.get(current_url)
+<<<<<<< HEAD
         
         # Wait for the main page content to load
         wait = WebDriverWait(driver, 10)
@@ -72,6 +78,10 @@ def navigate_dn_thread(thread_id, shared_content, shared_not_found_links):
     finally:
         if driver:
             driver.quit()
+=======
+        distro_info = distro_meta_finder(driver)
+        links = find_links(driver)
+>>>>>>> parent of 5108ef1 (feat(main.py):added back dl func)
 
 def find_links(driver):
     """Finds 'ISO' links on the current page."""
@@ -178,6 +188,7 @@ if __name__ == "__main__":
             thread.join() # Wait for all threads to finish
 
     elif userInput == "dl":
+<<<<<<< HEAD
         print("What is the Name of the distro?")
         distroname = input()
         found_links_master = navigate_dl_single(distroname)
@@ -189,3 +200,7 @@ if __name__ == "__main__":
         metadata_packerman("not_found_distros.txt", not_found_links_master)
 
     print("Scraping complete.")
+=======
+        pass
+    metadata_packerman()
+>>>>>>> parent of 5108ef1 (feat(main.py):added back dl func)
