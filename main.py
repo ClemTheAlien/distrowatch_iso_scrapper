@@ -1,5 +1,4 @@
 import re
-from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup, NavigableString
@@ -25,36 +24,32 @@ def create_firefox_driver():
         print(f"Error initializing Firefox WebDriver: {e}")
         return None
 
+
 def navigate_dn():
-    global driver
     if driver:
         driver.get("https://distrowatch.com/")
         random_distribution_input = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(
-                        (By.XPATH, "//input[@value='Random Distribution']")
-                    )
-                )
+                (By.XPATH, "//input[@value='Random Distribution']")
+            )
+        )
         random_distribution_input.click()
-        current_url=driver.current_url
+        current_url = driver.current_url
         driver.get(current_url)
-        distro_info = distro_meta_finder(driver)
-        links = find_links(driver)
+        distro_meta_finder(driver)
+        find_links(driver)
 
 
 def navigate_dl(distroname):
-    global driver
     if driver:
         driver.get("https://distrowatch.com/")
-        input_field= driver.find_element(By.NAME, "distribution")
-        input_field.send_keys(distroname+ Keys.ENTER)
-        wait = WebDriverWait(driver, 10)
-        info_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "Info")))
-        distro_info = distro_meta_finder(driver)
-        links = find_links(driver)        
+        input_field = driver.find_element(By.NAME, "distribution")
+        input_field.send_keys(distroname + Keys.ENTER)
+        distro_meta_finder(driver)
+        find_links(driver)
+
 
 def find_links(driver):
-    global found_links
-    global distro
     html_content = None
     try:
         html_content = driver.page_source
@@ -66,7 +61,7 @@ def find_links(driver):
             if href not in found_links:
                 found_links.append(href)
             elif not all_links:
-                ncontinue
+                continue
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
     return found_links
@@ -106,9 +101,9 @@ def distro_meta_finder(driver):
 
 def metadata_packerman():
     file_path = "links_output.txt"
-    with open(file_path, 'w') as file:
+    with open(file_path, "w") as file:
         for e in content:
-            file.write(e + '\n')   
+            file.write(e + "\n")
 
 
 if __name__ == "__main__":
@@ -117,7 +112,7 @@ if __name__ == "__main__":
     driver = None
     distro = None
     distro_rss = None
-    description= None 
+    description = None
     found_links = []
     not_found_links = []
     print(
@@ -131,45 +126,42 @@ if __name__ == "__main__":
         while i < int(userInput):
             distro = ""
             distro_rss = ""
-            description= "" 
+            description = ""
             found_links = []
             not_found_links = ""
             navigate_dn()
-            print("Distro: "+distro)
-            print("Distro RSS: "+distro_rss)
-            print("Distro Desc: "+description)
+            print("Distro: " + distro)
+            print("Distro RSS: " + distro_rss)
+            print("Distro Desc: " + description)
             print(i)
-            if not found_links: 
-                print ("Could not find links for")
+            if not found_links:
+                print("Could not find links for")
                 not_found_links = distro
                 print(not_found_links)
             else:
-                print ("Found links")
+                print("Found links")
                 print(found_links)
             for e in found_links:
                 content.append(e)
-            i+=1
-    
+            i = i + 1
     elif userInput == "dl":
-        print(
-        "What is the Name of the distro?"
-        )
+        print("What is the Name of the distro?")
         distroname = input()
         distro = ""
         distro_rss = ""
-        description= "" 
+        description = ""
         found_links = []
         not_found_links = ""
         navigate_dl(distroname)
-        print("Distro: "+distro)
-        print("Distro RSS: "+distro_rss)
-        print("Distro Desc: "+description)
-        if not found_links: 
-            print ("Could not find links for")
+        print("Distro: " + distro)
+        print("Distro RSS: " + distro_rss)
+        print("Distro Desc: " + description)
+        if not found_links:
+            print("Could not find links for")
             not_found_links = distro
             print(not_found_links)
         else:
-            print ("Found links")
+            print("Found links")
             print(found_links)
         for e in found_links:
             content.append(e)
